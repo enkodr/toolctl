@@ -79,13 +79,19 @@ You can [download the latest version of toolctl](https://github.com/toolctl/tool
 Currently, `toolctl` supports the following tools:
 
 - [age](https://age-encryption.org/): A simple, modern and secure encryption tool
+- [age-keygen](https://age-encryption.org/): A simple, modern and secure encryption tool
 - [chezmoi](https://chezmoi.io/): Manage your dotfiles across multiple diverse machines, securely
 - [dive](https://github.com/wagoodman/dive): A tool for exploring each layer in a docker image
+- [dockerfilegraph](https://github.com/patrickhoefler/dockerfilegraph): Visualize your multi-stage Dockerfiles
+- [eksctl](https://eksctl.io/): The official CLI for Amazon EKS
+- [gdu](https://github.com/dundee/gdu): Fast disk usage analyzer with console interface written in Go
 - [gh](https://cli.github.com/): GitHub's official command line tool
 - [golangci-lint](https://golangci-lint.run/): Fast linters runner for Go
 - [helm](https://helm.sh/): The Kubernetes package manager
 - [hugo](https://gohugo.io/): The world's fastest framework for building websites
 - [k9s](https://k9scli.io/): Kubernetes CLI to manage your clusters in style
+- [kind](https://kind.sigs.k8s.io/): Kubernetes in Docker - local clusters for testing Kubernetes
+- [kops](https://kops.sigs.k8s.io/): Production grade K8s installation, upgrades, and management
 - [kubectl](https://kubernetes.io/docs/reference/kubectl/): The Kubernetes command-line tool
 - [kubectx](https://github.com/ahmetb/kubectx): Faster way to switch between Kubernetes contexts
 - [kubefwd](https://github.com/txn2/kubefwd): Bulk port forwarding Kubernetes services for local development
@@ -94,6 +100,7 @@ Currently, `toolctl` supports the following tools:
 - [kustomize](https://kustomize.io/): Template-free customization of Kubernetes configuration
 - [minikube](https://minikube.sigs.k8s.io/): Run Kubernetes locally
 - [pulumi](https://www.pulumi.com/): Developer-first infrastructure as code
+- [skaffold](https://skaffold.dev/): Easy and repeatable Kubernetes development
 - [sops](https://github.com/mozilla/sops): Simple and flexible tool for managing secrets
 - [stern](https://github.com/stern/stern): Multi pod and container log tailing for Kubernetes
 - [terraform](https://www.terraform.io/): Infrastructure as code software tool
@@ -111,7 +118,7 @@ In general, `toolctl` currently supports any tool that:
 ✔ includes a command or flag to print its [semantic version](https://semver.org/)\
 ✔ provides its source code and precompiled binaries online under a free and open source license
 
-If you know a tool that fits all of these criteria, please [open an issue](https://github.com/toolctl/toolctl/issues/new) and let us know!
+If you know a tool that fits all of these criteria, please [open an issue](https://github.com/toolctl/toolctl/issues/new?template=tool_request.md&title=Tool%20request:) and let us know!
 
 ## Credits
 

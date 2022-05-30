@@ -31,14 +31,14 @@ HTTP status: 404
 toolctl-test-tool (darwin|linux)/(amd|arm)64 v0.3.0 ...
 URL: .+/(darwin|linux)/(amd|arm)64/0.3.0/toolctl-test-tool.tar.gz
 HTTP status: 404
-toolctl-test-tool (darwin|linux)/(amd|arm)64 v0.4.0 ...
-URL: .+/(darwin|linux)/(amd|arm)64/0.4.0/toolctl-test-tool.tar.gz
+toolctl-test-tool (darwin|linux)/(amd|arm)64 v0.3.1 ...
+URL: .+/(darwin|linux)/(amd|arm)64/0.3.1/toolctl-test-tool.tar.gz
 HTTP status: 404
 toolctl-test-tool (darwin|linux)/(amd|arm)64 v1.0.0 ...
 URL: .+/(darwin|linux)/(amd|arm)64/1.0.0/toolctl-test-tool.tar.gz
 HTTP status: 404
-toolctl-test-tool (darwin|linux)/(amd|arm)64 v2.0.0 ...
-URL: .+/(darwin|linux)/(amd|arm)64/2.0.0/toolctl-test-tool.tar.gz
+toolctl-test-tool (darwin|linux)/(amd|arm)64 v1.0.1 ...
+URL: .+/(darwin|linux)/(amd|arm)64/1.0.1/toolctl-test-tool.tar.gz
 HTTP status: 404`
 
 	tests := []test{
@@ -123,7 +123,21 @@ Global Flags:
 		},
 		// -------------------------------------------------------------------------
 		{
-			name: "supported tool with version",
+			name: "supported tool with invalid version",
+			supportedTools: []supportedTool{
+				{
+					name:    "toolctl-test-tool",
+					version: "0.1.0",
+					tarGz:   true,
+				},
+			},
+			cliArgs: []string{"toolctl-test-tool@invalid"},
+			wantErr: true,
+			wantOut: "Error: Invalid Semantic Version\n",
+		},
+		// -------------------------------------------------------------------------
+		{
+			name: "supported tool with valid version",
 			supportedTools: []supportedTool{
 				{
 					name:    "toolctl-test-tool",
@@ -150,6 +164,37 @@ Global Flags:
 		},
 		// -------------------------------------------------------------------------
 		{
+			name: "supported tool with earliest version",
+			supportedTools: []supportedTool{
+				{
+					name:    "toolctl-test-tool",
+					version: "0.1.0",
+					tarGz:   true,
+				},
+				{
+					name:                 "toolctl-test-tool",
+					version:              "0.2.0",
+					onlyOnDownloadServer: true,
+					tarGz:                true,
+				},
+			},
+			cliArgs: []string{
+				"toolctl-test-tool@earliest",
+				"--os", runtime.GOOS,
+				"--arch", runtime.GOARCH,
+			},
+			wantOutRegex: `toolctl-test-tool (darwin|linux)/(amd|arm)64 v0.1.0 already added
+` + defaultOutRegex,
+			wantFiles: []APIFile{
+				{
+					Path: fmt.Sprintf(
+						"toolctl-test-tool/%s-%s/0.2.0.yaml", runtime.GOOS, runtime.GOARCH,
+					),
+				},
+			},
+		},
+		// -------------------------------------------------------------------------
+		{
 			name:    "AMD64Default template function",
 			cliArgs: []string{"toolctl-test-tool-template-func"},
 			supportedTools: []supportedTool{
@@ -160,10 +205,10 @@ Global Flags:
 					tarGz:                   true,
 				},
 			},
-			wantOutRegex: `(?s)URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.darwin.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.darwinarm64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.linux.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.linuxarm64`,
+			wantOutRegex: `(?s)URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.darwin.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.darwinarm64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.linux.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.linuxarm64`,
 		},
 		// -------------------------------------------------------------------------
 		{
@@ -177,10 +222,10 @@ URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.linuxarm64`,
 					tarGz:                   true,
 				},
 			},
-			wantOutRegex: `(?s)URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.macOS.x64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.macOS.arm64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.linux.x64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.linux.arm64`,
+			wantOutRegex: `(?s)URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.macOS.x64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.macOS.arm64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.linux.x64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.linux.arm64`,
 		},
 		// -------------------------------------------------------------------------
 		{
@@ -188,16 +233,17 @@ URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.linux.arm64`,
 			cliArgs: []string{"toolctl-test-tool-template-func"},
 			supportedTools: []supportedTool{
 				{
-					name:                    "toolctl-test-tool-template-func",
-					version:                 "0.1.0",
-					downloadURLTemplatePath: "/v{{.Version}}/{{.Name}}-v{{.Version}}.{{.OS | Title}}.{{.Arch | AMD64X86_64 | ARMUpper}}",
-					tarGz:                   true,
+					name:    "toolctl-test-tool-template-func",
+					version: "0.1.0",
+					downloadURLTemplatePath: "/v{{.Version}}/" +
+						"{{.Name}}-v{{.Version}}.{{.OS | Title}}.{{.Arch | AMD64X86_64 | ARMUpper}}",
+					tarGz: true,
 				},
 			},
-			wantOutRegex: `(?s)URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Darwin.x86_64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Darwin.ARM64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Linux.x86_64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Linux.ARM64`,
+			wantOutRegex: `(?s)URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.Darwin.x86_64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.Darwin.ARM64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.Linux.x86_64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.Linux.ARM64`,
 		},
 		// -------------------------------------------------------------------------
 		{
@@ -211,10 +257,24 @@ URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Linux.ARM64`,
 					tarGz:                   true,
 				},
 			},
-			wantOutRegex: `(?s)URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.darwin.64bit.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.darwin.arm64.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Linux.64bit.+
-URL: .+/v0.2.0/toolctl-test-tool-template-func-v0.2.0.Linux.arm64`,
+			wantOutRegex: `(?s)URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.darwin.64bit.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.darwin.arm64.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.Linux.64bit.+
+URL: .+/v0.1.1/toolctl-test-tool-template-func-v0.1.1.Linux.arm64`,
+		},
+		// -------------------------------------------------------------------------
+		{
+			name:    "Ignored version",
+			cliArgs: []string{"toolctl-test-tool-ignored-versions"},
+			supportedTools: []supportedTool{
+				{
+					name:            "toolctl-test-tool-ignored-versions",
+					version:         "0.1.0",
+					ignoredVersions: []string{"0.1.1"},
+					tarGz:           true,
+				},
+			},
+			wantOutRegex: `v0.1.1 ignored`,
 		},
 		// -------------------------------------------------------------------------
 		{

@@ -53,6 +53,7 @@ type ToolMeta struct {
 	Description         string
 	DownloadURLTemplate string `yaml:"downloadURLTemplate"`
 	Homepage            string
+	IgnoredVersions     []string `yaml:"ignoredVersions"`
 	VersionArgs         []string `yaml:"versionArgs"`
 }
 
@@ -132,7 +133,9 @@ type ToolPlatformVersionMeta struct {
 func GetToolPlatformVersionMeta(toolctlAPI ToolctlAPI, tool Tool) (meta ToolPlatformVersionMeta, err error) {
 	var found bool
 	var metaBytes []byte
-	found, metaBytes, err = toolctlAPI.GetContents(tool.Name + "/" + tool.OS + "-" + tool.Arch + "/" + tool.Version + ".yaml")
+	found, metaBytes, err = toolctlAPI.GetContents(
+		tool.Name + "/" + tool.OS + "-" + tool.Arch + "/" + tool.Version + ".yaml",
+	)
 	if err != nil {
 		return
 	}
